@@ -1,0 +1,1 @@
+import './hrlove-app.js';
