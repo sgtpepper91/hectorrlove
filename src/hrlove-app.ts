@@ -1,6 +1,13 @@
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { links, projects } from './content.js';
+import galeriaLogo from './images/galeria-hrlv-logo.png';
+import ligaMxLogo from './images/ligamx-hrlv-logo.png';
+
+const projectLogos = {
+  galeria: galeriaLogo,
+  ligamx: ligaMxLogo
+};
 
 @customElement('hrlove-app')
 export class HrloveApp extends LitElement {
@@ -43,7 +50,8 @@ export class HrloveApp extends LitElement {
     .project { background: var(--card); display: flex; flex-direction: column; min-height: 335px; padding: 1.5rem; position: relative; text-decoration: none; transition: background .22s ease, transform .22s ease; }
     .project:hover { background: #e8e5df; transform: translateY(-5px); }
     .project-top { color: var(--muted); display: flex; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .7rem; justify-content: space-between; }
-    .symbol { color: var(--accent); font-size: 3.5rem; font-weight: 300; line-height: 1; margin: auto 0 1rem; }
+    .project-logo { align-items: center; display: flex; flex: 1; margin: 1rem 0; }
+    .project-logo img { display: block; height: 84px; max-width: 150px; object-fit: contain; object-position: left center; width: 100%; }
     .project h3 { font-size: 1.5rem; letter-spacing: -.04em; margin: 0; }
     .project p { color: var(--muted); font-size: .88rem; line-height: 1.45; margin: .65rem 0 0; max-width: 270px; }
     .about-grid { display: grid; gap: 3rem; grid-template-columns: 1.1fr .9fr; }
@@ -105,7 +113,7 @@ export class HrloveApp extends LitElement {
             ${projects.map(project => html`
               <a class="project" href=${project.url} target="_blank" rel="noreferrer">
                 <div class="project-top"><span>${project.number}</span><span>↗</span></div>
-                <div class="symbol" aria-hidden="true">${project.symbol}</div>
+                <div class="project-logo" aria-hidden="true"><img src=${projectLogos[project.logo]} alt="" /></div>
                 <div><h3>${project.title}</h3><p>${project.description}</p></div>
               </a>
             `)}

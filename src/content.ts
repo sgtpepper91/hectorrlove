@@ -4,7 +4,7 @@ export type Project = {
   description: string;
   url: string;
   number: string;
-  symbol: string;
+  logo: 'galeria' | 'ligamx';
 };
 
 export const projects: Project[] = [
@@ -14,23 +14,15 @@ export const projects: Project[] = [
     description: 'A living home for Mexico’s football: fixtures, teams, stats and stories.',
     url: 'https://ligamx.hectorrlove.com',
     number: '01',
-    symbol: '∿'
-  },
-  {
-    title: 'World Cup 2026',
-    eyebrow: 'The tournament, in real time',
-    description: 'Following the world’s game as it arrives in Mexico, Canada and the United States.',
-    url: 'https://mundial.hectorrlove.com',
-    number: '02',
-    symbol: '◐'
+    logo: 'ligamx'
   },
   {
     title: 'Travel Gallery',
     eyebrow: 'Places, light & memory',
     description: 'An editorial space for photographs, journeys and the stories behind them.',
     url: 'https://galeria.hectorrlove.com',
-    number: '03',
-    symbol: '⊹'
+    number: '02',
+    logo: 'galeria'
   }
 ];
 
