@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { basename } from 'node:path';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import { rollupPluginHTML as html } from '@web/rollup-plugin-html';
@@ -19,6 +19,26 @@ const imageAssets = {
   }
 };
 
+const experimentAssets = {
+  name: 'experiment-assets',
+  buildStart() {
+    const emitDirectory = (directory, outputDirectory) => {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        if (entry.name.startsWith('.')) continue;
+        const sourcePath = `${directory}/${entry.name}`;
+        const fileName = `${outputDirectory}/${entry.name}`;
+        if (entry.isDirectory()) {
+          emitDirectory(sourcePath, fileName);
+        } else if (entry.isFile()) {
+          this.addWatchFile(sourcePath);
+          this.emitFile({ type: 'asset', fileName, source: readFileSync(sourcePath) });
+        }
+      }
+    };
+    emitDirectory('public/experiments', 'experiments');
+  }
+};
+
 export default {
   input: 'index.html',
   output: {
@@ -33,6 +53,7 @@ export default {
     html({ minify: true }),
     nodeResolve(),
     imageAssets,
+    experimentAssets,
     esbuild({ minify: true, target: 'es2020', tsconfig: 'tsconfig.json' })
   ]
 };
