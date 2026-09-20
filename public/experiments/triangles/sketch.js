@@ -1,83 +1,86 @@
-let A;
-let B;
-let C;
-let U;
-let sax;
-let say;
-let sbx;
-let sby;
-let scx;
-let scy;
-function setup() {
-    createCanvas(600, 600);
-    //createCanvas(windowHeight, windowHeight);
-    sax = createSlider(-width / 2, width / 2, 0, 10);
-    say = createSlider(-height / 2, height / 2, 0, 10);
-    sbx = createSlider(-width / 2, width / 2, 0, 10);
-    sby = createSlider(-height / 2, height / 2, 0, 10);
-    scx = createSlider(-width / 2, width / 2, 0, 10);
-    scy = createSlider(-height / 2, height / 2, 0, 10);
-    //sax.position(10, 10);
-    //noLoop();
-}
-
-function draw() {
-    background(0);
-    translate(width / 2, height / 2);
-    A = createVector(sax.value(), say.value());
-    B = createVector(sbx.value(), sby.value());
-    C = createVector(scx.value(), scy.value());
-    stroke(255, 0, 0);
-    strokeWeight(5);
-    point(A.x, A.y);
-    point(B.x, B.y);
-    point(C.x, C.y);
-    stroke(255);
-    strokeWeight(1);
-    line(A.x, A.y, B.x, B.y);
-    line(A.x, A.y, C.x, C.y);
-    line(C.x, C.y, B.x, B.y);
-    mediatriz(A, B);
-    mediatriz(A, C);
-    mediatriz(C, B);
-    let d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
-    let ux = ((A.x * A.x + A.y * A.y) * (B.y - C.y) + (B.x * B.x + B.y * B.y) * (C.y - A.y) + (C.x * C.x + C.y * C.y) * (A.y - B.y)) / d;
-    let uy = ((A.x * A.x + A.y * A.y) * (C.x - B.x) + (B.x * B.x + B.y * B.y) * (A.x - C.x) + (C.x * C.x + C.y * C.y) * (B.x - A.x)) / d;
-    U = createVector(ux, uy);
-    stroke(255, 255, 100);
-    strokeWeight(5);
-    point(U.x, U.y);
-    r = dist(A.x, A.y, U.x, U.y);
-    noFill();
-    strokeWeight(2);
-    circle(U.x, U.y, 2 * r);
-}
-
-function mediatriz(A, B) {
-    let p = createVector((A.x + B.x) / 2, (A.y + B.y) / 2);
-    stroke(0, 255, 0);
-    strokeWeight(5);
-    point(p.x, p.y);
-    if (A.x - B.x !== 0) {
-        let m = (A.y - B.y) / (A.x - B.x);
-        if (m !== 0) {
-            m = -1 / m;
-            let y1 = m * (-width / 2 - p.x) + p.y;
-            let y2 = m * (width / 2 - p.x) + p.y;
-
-            stroke(0, 0, 255);
-            strokeWeight(1);
-            line(-width / 2, y1, width / 2, y2);
-        } else {
-            stroke(0, 0, 255);
-            strokeWeight(1);
-            line(p.x, -height / 2, p.x, height / 2);
-        }
-    } else {
-        stroke(0, 0, 255);
-        strokeWeight(1);
-        line(-width / 2, p.y, width / 2, p.y);
+(() => {
+  let lab,
+    controls = [],
+    position,
+    radius;
+  window.setup = () => {
+    lab = Lab.mount(640, 640);
+    for (const [name, x, y] of [
+      ["A", -180, 140],
+      ["B", 160, 120],
+      ["C", -20, -180],
+    ]) {
+      const parent = lab.group(`Vértice ${name}`);
+      controls.push({
+        name,
+        x: lab.number(`${name} · X`, x, -250, 250, 10, () => {}, { parent }),
+        y: lab.number(`${name} · Y`, y, -250, 250, 10, () => {}, { parent }),
+      });
     }
-}
-
-
+    position = lab.metric("Circuncentro (X, Y)");
+    radius = lab.metric("Radio");
+    lab.legend([
+      ["Triángulo", "ink"],
+      ["Mediatrices", "blue"],
+      ["Circuncentro y circunferencia", "accent"],
+    ]);
+    lab.hint(
+      "Las coordenadas usan el centro del lienzo como origen, con Y positiva hacia arriba. Mueve los vértices para explorar triángulos distintos.",
+    );
+  };
+  window.draw = () => {
+    const points = controls.map((c) => ({ x: c.x.value, y: c.y.value })),
+      center = LabMath.circumcenter(...points);
+    lab.clear();
+    push();
+    translate(320, 320);
+    scale(1, -1);
+    noFill();
+    stroke(lab.palette.line);
+    line(-320, 0, 320, 0);
+    line(0, -320, 0, 320);
+    if (center) {
+      stroke(lab.palette.accent);
+      circle(center.x, center.y, center.r * 2);
+    }
+    for (let i = 0; i < 3; i++) {
+      const a = points[i],
+        b = points[(i + 1) % 3],
+        m = LabMath.bisector(a, b);
+      if (m) {
+        stroke(lab.palette.blue);
+        strokeWeight(1);
+        line(
+          m.x - 900 * m.dx,
+          m.y - 900 * m.dy,
+          m.x + 900 * m.dx,
+          m.y + 900 * m.dy,
+        );
+      }
+      stroke(lab.palette.ink);
+      strokeWeight(2);
+      line(a.x, a.y, b.x, b.y);
+    }
+    noStroke();
+    fill(lab.palette.ink);
+    for (const p of points) circle(p.x, p.y, 10);
+    if (center) {
+      fill(lab.palette.accent);
+      circle(center.x, center.y, 12);
+    }
+    pop();
+    fill(lab.palette.ink);
+    textSize(16);
+    noStroke();
+    points.forEach((p, i) => text(controls[i].name, 332 + p.x, 313 - p.y));
+    position(
+      center ? `${center.x.toFixed(1)}, ${center.y.toFixed(1)}` : "No definido",
+    );
+    radius(center ? center.r.toFixed(1) : "—");
+    lab.status(
+      center
+        ? "Las tres distancias desde el circuncentro a los vértices son iguales."
+        : "Los vértices coinciden o están alineados. No existe una circunferencia única.",
+    );
+  };
+})();

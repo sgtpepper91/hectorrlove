@@ -1,33 +1,31 @@
-let n;
-let r1 = 200;
-let r2 = 100;
-function setup() {
-  createCanvas(420, 420);
-}
-
-function draw() {
-  n = parseInt(document.getElementById("n").value);
-  background(255);
-  translate(210, 210);
-  stroke("black");
-  strokeWeight(1);
-  let points1 = [PI / 2];
-  let points2 = [(PI * (n + 2)) / (2 * n)];
-  for (let i = 1; i < n; i++) {
-    points1.push(points1[i - 1] + (2 * PI) / n);
-    points2.push(points2[i - 1] + (2 * PI) / n);
-  }
-  noStroke();
-  fill("red");
-  beginShape();
-  for (let j = 0; j < points1.length; j++) {
-    vertex(r1 * cos(points1[j]), -r1 * sin(points1[j]));
-    vertex(r2 * cos(points2[j]), -r2 * sin(points2[j]));
-  }
-  endShape();
-}
-
-function saveStar() {
-  console.log("save", n);
-  saveCanvas(`star${n}`, "png");
-}
+(() => {
+  let lab, count, ratio;
+  window.setup = () => {
+    lab = Lab.mount(600, 600);
+    count = lab.number("Puntas", 5, 3, 60, 1, () => {}, { integer: true });
+    ratio = lab.number("Proporción del radio interior", 0.5, 0.1, 0.9, 0.05);
+    lab.button(
+      "Descargar PNG",
+      () => lab.download(`estrella-${count.value}`),
+      true,
+    );
+    lab.hint(
+      "La proporción compara el radio interior con el exterior. Un valor pequeño produce puntas más largas.",
+    );
+  };
+  window.draw = () => {
+    lab.clear();
+    push();
+    translate(300, 300);
+    noStroke();
+    fill(lab.palette.accent);
+    beginShape();
+    for (let i = 0; i < count.value * 2; i++) {
+      const a = (Math.PI * i) / count.value - Math.PI / 2,
+        r = i % 2 ? 240 * ratio.value : 240;
+      vertex(r * Math.cos(a), r * Math.sin(a));
+    }
+    endShape(CLOSE);
+    pop();
+  };
+})();

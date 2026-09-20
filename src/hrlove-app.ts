@@ -61,7 +61,7 @@ export class HrloveApp extends LitElement {
     .experiment-heading { font-size: clamp(2rem, 4vw, 3.7rem); letter-spacing: -.06em; margin: 0; }
     .experiment-intro { color: var(--muted); font-size: .9rem; line-height: 1.5; margin: 1rem 0 2.5rem; max-width: 480px; }
     .experiments { display: grid; gap: 1rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .experiment-card { min-height: 150px; gap: 2rem; justify-content: space-between; }
+    .experiment-card { min-height: 220px; gap: 2rem; justify-content: space-between; }
     .experiment-card h3 { font-size: 1.3rem; overflow-wrap: anywhere; }
     footer { border-top: 1px solid var(--line); padding: 2.5rem 0 3rem; }
     .footer-inner { align-items: center; display: flex; justify-content: space-between; }
@@ -85,7 +85,7 @@ export class HrloveApp extends LitElement {
       .project { min-height: 260px; }
       .about-grid { grid-template-columns: 1fr; }
       .experiments { grid-template-columns: 1fr; }
-      .experiment-card { min-height: 140px; }
+      .experiment-card { min-height: 180px; }
       .footer-inner { align-items: flex-start; flex-direction: column; gap: 1.5rem; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -130,14 +130,14 @@ export class HrloveApp extends LitElement {
           </div>
         </div></section>
         <section id="experiments" aria-labelledby="experiments-heading"><div class="shell">
-          <p class="section-label">03 — Experiments</p>
-          <h2 class="experiment-heading" id="experiments-heading">Ideas in motion.</h2>
-          <p class="experiment-intro">Small explorations of mathematics, patterns and motion. Open an experiment in a new tab to explore.</p>
+          <p class="section-label">03 — Experimentos</p>
+          <h2 class="experiment-heading" id="experiments-heading">Ideas en movimiento.</h2>
+          <p class="experiment-intro">Explora matemáticas, patrones y movimiento. Cada experimento se abre en una pestaña nueva.</p>
           <div class="experiments">
             ${experiments.map((experiment, index) => html`
-              <a class="project experiment-card" href=${experiment.url} target="_blank" rel="noopener noreferrer" aria-label=${`${experiment.title} — Open in a new tab`}>
+              <a class="project experiment-card" href=${experiment.url} target="_blank" rel="noopener noreferrer" aria-label=${`${experiment.title} — Abrir en una pestaña nueva`}>
                 <div class="project-top" aria-hidden="true"><span>${String(index + 1).padStart(2, '0')}</span><span>↗</span></div>
-                <h3>${experiment.title}</h3>
+                <div><h3>${experiment.title}</h3><p>${experiment.description}</p></div>
               </a>
             `)}
           </div>

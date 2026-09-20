@@ -38,17 +38,35 @@ Los proyectos y enlaces públicos viven en `src/content.ts`. Actualiza ese archi
 
 ## Experimentos
 
-El catálogo `experiments` de `src/content.ts` enlaza las 14 páginas independientes de `public/experiments/`. Rollup copia sus archivos a `dist/experiments/` sin transformar HTML, CSS ni scripts clásicos. Cada tarjeta abre una pestaña nueva; la portada no ejecuta los sketches.
+El catálogo `experiments` de `src/content.ts` enlaza las 15 páginas independientes de `public/experiments/`. Rollup copia sus archivos a `dist/experiments/` sin transformar HTML, CSS ni scripts clásicos. Cada tarjeta abre una pestaña nueva; la portada no ejecuta los sketches.
 
-Los scripts y estilos se conservan tal como estaban en `/Users/hectorrlv/Documents/p5`. Solo se sustituyeron las referencias de bibliotecas de los HTML por rutas locales compartidas en `vendor/`:
+Los originales de `/Users/hectorrlv/Documents/p5` permanecen intactos. Las copias del sitio tienen nombres y descripciones en español, controles accesibles y un diseño compartido. Conservan las rutas de sus carpetas y las bibliotecas locales de `vendor/`:
 
 | p5.js | Experimentos |
 | --- | --- |
-| 0.10.2 | Bouncing_balls, Falling_ball |
-| 1.0.0 | game-of-life, triangles |
-| 1.4.0 | Alive_parka, Brook_ox, Center_circle, Hipocicloide, Orbit, Star, Star2 |
-| 1.6.0 | Fourier, mandelbrot, TimesTable |
+| 2.3.2 | Alive_parka, Bouncing_balls, Brook_ox, Center_circle, Falling_ball, Fourier, Hipocicloide, Orbit, Star, Star2, TimesTable, epicicloide, game-of-life, mandelbrot, triangles |
 
-Las bibliotecas 0.10.2 y 1.0.0 y todos los complementos de sonido se copiaron de los archivos originales. Se descargaron las distribuciones minificadas oficiales de [p5.js 1.4.0](https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js) y [p5.js 1.6.0](https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js). La distribución minificada de 1.4.0 evita la descarga externa de traducciones de diagnóstico que realiza la distribución completa. Se conservan sus avisos de licencia. `p5.sound` permanece únicamente en las páginas que ya lo cargaban. No hay dependencias de CDN en ejecución.
+Todos los laboratorios usan la distribución minificada oficial local de [p5.js 2.3.2](https://github.com/processing/p5.js/releases/tag/v2.3.2). Ningún sketch usa audio, por lo que `p5.sound` se retiró. No hay dependencias de CDN en ejecución.
 
-Las dimensiones fijas, valores iniciales y comportamiento de cada experimento son los originales; esta integración no los adapta a móvil ni corrige su lógica.
+### Laboratorio visual
+
+`shared/lab.css` y `shared/lab.js` definen el tema claro/oscuro, los controles, resultados y acciones comunes. Los canvas mantienen coordenadas lógicas estables y se escalan proporcionalmente; redimensionar la página no reinicia la simulación. Las animaciones suspenden su avance cuando la pestaña está oculta. Cada carpeta conserva su propio `sketch.js`.
+
+`shared/math.js` contiene los modelos puros comprobados por las pruebas: agujas de Buffon, rebotes disipativos, descenso por cicloide, órbita con integración Verlet y detección de contacto, mediatrices, circuncentro, Fourier y reglas de Conway. Las unidades de Órbita son de simulación; sus radios no cambian la masa. La braquistócrona representa partículas sin fricción bajo gravedad de 9.81 m/s², con tiempos analíticos. Véase la [solución de referencia mediante cicloide](https://arxiv.org/abs/2507.22548).
+
+Mandelbrot y Julia usan `fractal-worker.js`. Cada selección cancela el cálculo anterior de Julia. Las descargas quedan deshabilitadas mientras se calcula la imagen correspondiente.
+
+### Validación
+
+```bash
+corepack pnpm run check
+node --test tests/experiment-math.test.mjs
+```
+
+La prueba de navegador usa una instalación existente de Playwright y Google Chrome, arranca un servidor temporal sobre `dist` y bloquea peticiones externas:
+
+```bash
+PLAYWRIGHT_MODULE=/ruta/a/playwright/index.mjs node tests/experiments.browser.mjs
+```
+
+`QA_OUTPUT` permite elegir dónde guardar capturas y el informe JSON (por defecto, en el directorio temporal del sistema). `QA_ONLY=mandelbrot,triangles` limita la ejecución a carpetas concretas. Se comprueban las 14 páginas, etiquetas, límites de controles, descargas, navegación por teclado, temas y coordenadas en móvil.

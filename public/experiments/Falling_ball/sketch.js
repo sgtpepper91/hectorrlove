@@ -1,63 +1,101 @@
-let g;
-let tetha;
-let ball1;
-let a;
-let b;
-let c;
-let x1, y1, x2, y2;
-
-function setup() {
-  createCanvas(400, 400);
-  g = 0.2;
-  tetha = atan(200 / 360);
-  x1 = 20;
-  y1 = 200;
-  x2 = 380;
-  y2 = 400;
-  a = -0.0012;
-  b = (a * (x2 * x2 - x1 * x1) + y1 - y2) / (x1 - x2);
-  c = (a * x1 * x2 * (x1 - x2) + x1 * y2 - x2 * y1) / (x1 - x2);
-  let m = 2 * a * x1 + b;
-  let angle = atan(m);
-  ball1 = new Ball(20, 200, 15, tetha);
-  ball2 = new Ball(20, 200, 15, angle);
-}
-
-function draw() {
-  background(220);
-  stroke(0);
-  strokeWeight(1);
-  line(20, 200, 380, 400);
-  line(20, 200, 20, 400);
-  fill(255, 0, 0, 100);
-  parabola(20, 200, 380, 400);
-  if (ball1.x < 380 || ball1.y < 400) {
-    ball1.moveLine();
-  } else {
-    ball1.x = x1 + 15 * sin(tetha);
-    ball1.y = y1 - 15 * cos(tetha);
-    ball1.vx = 0;
-    ball1.vy = 0;
+(() => {
+  let lab,
+    horizontal,
+    drop,
+    model,
+    elapsed = 0,
+    running = false,
+    start,
+    lineTime,
+    cycleTime,
+    clock;
+  function reset() {
+    model = LabMath.brachistochrone(horizontal.value, drop.value);
+    elapsed = 0;
+    running = false;
+    if (start) start.disabled = false;
   }
-  ball1.show(tetha);
-  if (ball2.x < 380 || ball2.y < 400) {
-    ball2.moveParabola();
-  } else {
-    let m = 2 * a * x1 + b;
-    let angle = atan(m);
-    ball2.x = x1 + 15 * sin(angle);
-    ball2.y = y1 - 15 * cos(angle);
-    ball2.vx = 0;
-    ball2.vy = 0;
-  }
-  ball2.show();
-}
-
-
-function parabola(x1, y1, x2, y2) {
-  for (let i = x1; i <= x2; i++) {
-    let j = a * i * i + b * i + c;
-    stroke("blue");
-    point(i, j);
-  }
-}
+  window.setup = () => {
+    lab = Lab.mount(720, 520);
+    horizontal = lab.number("Separación horizontal", 6, 1, 10, 0.5, reset, {
+      unit: "m",
+      reset: true,
+    });
+    drop = lab.number("Desnivel", 3, 1, 6, 0.5, reset, {
+      unit: "m",
+      reset: true,
+    });
+    start = lab.button(
+      "Iniciar descenso",
+      () => {
+        elapsed = 0;
+        running = true;
+        lab.setPaused(false);
+        start.disabled = true;
+      },
+      true,
+    );
+    lab.animation(() => {
+      reset();
+      lab.setPaused(false);
+    });
+    lineTime = lab.metric("Tiempo por la recta");
+    cycleTime = lab.metric("Tiempo por la cicloide");
+    clock = lab.metric("Tiempo transcurrido");
+    lab.legend([
+      ["Recta", "blue"],
+      ["Cicloide", "accent"],
+    ]);
+    lab.hint(
+      "Ambas partículas salen del reposo, sin fricción, con gravedad de 9.81 m/s². El tamaño dibujado no interviene en el movimiento.",
+    );
+    reset();
+  };
+  window.draw = () => {
+    const dt = lab.tick();
+    if (running) elapsed = Math.min(model.lineTime, elapsed + dt);
+    if (elapsed >= model.lineTime) {
+      running = false;
+      start.disabled = false;
+    }
+    const scale = Math.min(
+      600 / model.dx,
+      390 / Math.max(model.dy, 2 * model.a),
+    );
+    lab.clear();
+    push();
+    translate(50, 45);
+    noFill();
+    strokeWeight(2);
+    stroke(lab.palette.blue);
+    line(0, 0, model.dx * scale, model.dy * scale);
+    stroke(lab.palette.accent);
+    beginShape();
+    for (let i = 0; i <= 180; i++) {
+      const p = LabMath.descentPosition(
+        model,
+        (model.cycleTime * i) / 180,
+        true,
+      );
+      vertex(p.x * scale, p.y * scale);
+    }
+    endShape();
+    for (const curved of [false, true]) {
+      const p = LabMath.descentPosition(model, elapsed, curved);
+      noStroke();
+      fill(curved ? lab.palette.accent : lab.palette.blue);
+      circle(p.x * scale, p.y * scale, curved ? 16 : 10);
+    }
+    pop();
+    lineTime(`${model.lineTime.toFixed(3)} s`);
+    cycleTime(`${model.cycleTime.toFixed(3)} s`);
+    clock(`${elapsed.toFixed(2)} s`);
+    lab.status(
+      elapsed >= model.cycleTime
+        ? `La cicloide llega primero: ${(model.lineTime - model.cycleTime).toFixed(3)} s antes que la recta.`
+        : running
+          ? "Descenso en curso."
+          : "Pulsa «Iniciar descenso» para comparar los recorridos.",
+    );
+  };
+})();

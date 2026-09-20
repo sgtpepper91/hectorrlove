@@ -1,40 +1,70 @@
-let angle = 0;
-let points = [];
-let showCircles = true;
-let factor = 5.2; // d1/d2
-let h = 1; // distancia al centro2
-let d = h<=1 ? 400 : (200*2*factor)/(factor+h-1) ; //diametro círculo grande/
-let d2 = d / factor;
-function setup() {
-  createCanvas(404, 404);
-  //noLoop();
-}
-
-function draw() {
-  background(220);
-  translate(202, 202);
-  strokeWeight(1);
-  stroke("black"); // Change the color
-  let x = ((d - d2) / 2) * cos(angle);
-  let y = ((d - d2) / 2) * sin(angle);
-  let x2 = x + ((h * d2) / 2) * cos(-(factor - 1) * angle);
-  let y2 = y + ((h * d2) / 2) * sin(-(factor - 1) * angle);
-  points.push({ x: x2, y: y2 });
-  if (showCircles) {
-    circle(0, 0, d);
-    circle(x, y, d2);
-    line(x, y, x2, y2);
-    strokeWeight(5);
-    point(x, y);
-    point(x2, y2);
+(() => {
+  let lab,
+    outer,
+    inner,
+    helpers = true,
+    angle = 0,
+    points = [],
+    accumulator = 0;
+  function reset() {
+    inner.max(outer.value - 1);
+    angle = 0;
+    points = [];
+    accumulator = 0;
   }
-  stroke("green"); // Change the color
-  strokeWeight(3);
-  for (let i = 0; i < points.length; i++) {
-    point(points[i].x, points[i].y);
-  }
-  angle -= 0.002 * PI;
-  if (points.length > 1 && abs(x2 - (d - d2 * (1 - h)) / 2) <= 0.00001 && abs(y2) <= 0.00001) {
-    noLoop();
-  }
-}
+  window.setup = () => {
+    lab = Lab.mount(600, 600);
+    outer = lab.number("Radio exterior", 200, 80, 240, 1, reset, {
+      reset: true,
+    });
+    inner = lab.number("Radio interior", 50, 1, 199, 1, reset, { reset: true });
+    lab.checkbox("Mostrar círculos auxiliares", true, (v) => {
+      helpers = v;
+    });
+    lab.animation(reset);
+    lab.hint(
+      "El punto está en el borde de la circunferencia interior. Se conservan hasta 12 000 puntos del trazo.",
+    );
+  };
+  window.draw = () => {
+    accumulator += lab.tick();
+    const R = outer.value,
+      r = inner.value,
+      ratio = (R - r) / r;
+    while (accumulator >= 1 / 120) {
+      angle += 0.6 / 120;
+      points.push({
+        x: (R - r) * Math.cos(angle) + r * Math.cos(ratio * angle),
+        y: (R - r) * Math.sin(angle) - r * Math.sin(ratio * angle),
+      });
+      accumulator -= 1 / 120;
+    }
+    if (points.length > 12000) points.splice(0, points.length - 12000);
+    lab.clear();
+    push();
+    translate(300, 300);
+    noFill();
+    stroke(lab.palette.accent);
+    strokeWeight(2);
+    beginShape();
+    for (const p of points) vertex(p.x, p.y);
+    endShape();
+    if (helpers) {
+      stroke(lab.palette.line);
+      strokeWeight(1);
+      circle(0, 0, 2 * R);
+      const x = (R - r) * Math.cos(angle),
+        y = (R - r) * Math.sin(angle);
+      stroke(lab.palette.blue);
+      circle(x, y, 2 * r);
+      if (points.length) {
+        const p = points[points.length - 1];
+        line(x, y, p.x, p.y);
+        noStroke();
+        fill(lab.palette.accent);
+        circle(p.x, p.y, 9);
+      }
+    }
+    pop();
+  };
+})();

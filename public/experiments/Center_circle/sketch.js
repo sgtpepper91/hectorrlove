@@ -1,37 +1,57 @@
-function setup() {
-  createCanvas(400, 400);
-  background(220);
-  translate(200,200);
-  stroke("black");
-  strokeWeight(1);
-  circle(0,0,398);
-  strokeWeight(4);
-  stroke("blue");
-  point(0,0);
-  let a1 = random(0,2*PI);
-  let a2 = random(0,2*PI);
-  let a3 = random(0,2*PI);
-  let a4 = random(0,2*PI);
-  stroke("green");
-  strokeWeight(4);
-  point(199*cos(a1), 199*sin(a1));
-  point(199*cos(a2), 199*sin(a2));
-  point(199*cos(a3), 199*sin(a3));
-  point(199*cos(a4), 199*sin(a4));
-  strokeWeight(1);
-  perpendicularLine(199*cos(a1), 199*sin(a1), 199*cos(a2), 199*sin(a2));
-  perpendicularLine(199*cos(a3), 199*sin(a3), 199*cos(a4), 199*sin(a4));
-}
-
-function perpendicularLine(x1,y1, x2,y2) {
-  stroke("red");
-  line(x1, y1, x2, y2);
-  let mT = -(x1-x2)/(y1-y2);
-  let yM = (y1+y2) / 2;
-  let xM = (x1+x2) / 2;
-  let b = yM - mT * xM;
-  let b1 = mT * -200 + b;
-  let b2 = mT * 200 + b;
-  stroke("orange");
-  line(-200,b1, 200,b2);
-}
+(() => {
+  let lab, points;
+  function regenerate() {
+    const a = Math.random() * Math.PI * 2,
+      b = a + 0.5 + Math.random() * 1.5,
+      c = b + 0.4 + Math.random() * 0.7,
+      d = c + 0.5 + Math.random();
+    points = [a, b, c, d].map((angle) => ({
+      x: 240 * Math.cos(angle),
+      y: 240 * Math.sin(angle),
+    }));
+  }
+  window.setup = () => {
+    lab = Lab.mount(600, 600);
+    lab.button("Generar nuevos puntos", regenerate, true);
+    lab.legend([
+      ["Puntos", "ink"],
+      ["Cuerdas", "accent"],
+      ["Mediatrices", "blue"],
+      ["Centro", "green"],
+    ]);
+    lab.hint(
+      "Cada mediatriz pasa por el punto medio de una cuerda y forma un ángulo recto con ella. Su intersección es el centro.",
+    );
+    regenerate();
+  };
+  window.draw = () => {
+    lab.clear();
+    push();
+    translate(300, 300);
+    noFill();
+    stroke(lab.palette.line);
+    circle(0, 0, 480);
+    for (let i = 0; i < 4; i += 2) {
+      const a = points[i],
+        b = points[i + 1],
+        m = LabMath.bisector(a, b);
+      stroke(lab.palette.accent);
+      strokeWeight(2);
+      line(a.x, a.y, b.x, b.y);
+      stroke(lab.palette.blue);
+      strokeWeight(1.5);
+      line(
+        m.x - m.dx * 700,
+        m.y - m.dy * 700,
+        m.x + m.dx * 700,
+        m.y + m.dy * 700,
+      );
+    }
+    noStroke();
+    fill(lab.palette.ink);
+    for (const p of points) circle(p.x, p.y, 9);
+    fill(lab.palette.green);
+    circle(0, 0, 12);
+    pop();
+  };
+})();

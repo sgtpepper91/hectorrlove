@@ -9,10 +9,11 @@
     "build": "rimraf dist && rollup -c",
     "start": "web-dev-server --root-dir dist --app-index index.html",
     "start:build": "pnpm run build && pnpm run start",
-    "lint": "eslint \"src/**/*.{ts,js}\"",
+    "lint": "eslint \"src/**/*.{ts,js}\" \"public/experiments/*/sketch.js\" \"public/experiments/shared/*.js\" \"public/experiments/mandelbrot/fractal-worker.js\"",
     "format": "eslint \"src/**/*.{ts,js}\" --fix && prettier \"**/*.{ts,css,json,md,html}\" --write",
     "typecheck": "tsc6 --noEmit",
-    "check": "pnpm run lint && pnpm run typecheck && pnpm run build"
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run build",
+    "test:experiments": "node --test tests/experiment-math.test.mjs"
   },
   "dependencies": {
     "lit": "^3.3.3"
