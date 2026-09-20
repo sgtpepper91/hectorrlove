@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Observa cómo varias pelotas caen, rebotan y pierden energía hasta detenerse."
+    />
+    <title>Pelotas con rebote · Experimentos · H·R·LOVE</title>
+    <link rel="stylesheet" href="../shared/lab.css" />
+    <script src="../vendor/2.3.2/p5.min.js"></script>
+    <script src="../shared/math.js"></script>
+    <script src="../shared/lab.js"></script>
+  </head>
+  <body>
+    <main class="lab">
+      <a class="back" href="/#experiments">← Volver a Experimentos</a>
+      <header>
+        <p class="eyebrow">H·R·LOVE / Laboratorio visual</p>
+        <h1>Pelotas con rebote</h1>
+        <p class="description">
+          Observa cómo varias pelotas caen, rebotan y pierden energía hasta
+          detenerse.
+        </p>
+      </header>
+      <div class="workspace">
+        <section class="visual" aria-label="Visualización y resultados">
+          <div class="stage" id="stage"></div>
+          <div class="legend" id="legend"></div>
+          <p class="hint" id="hint"></p>
+          <div class="metrics" id="metrics"></div>
+          <p class="status" id="status" role="status"></p>
+        </section>
+        <section class="panel" id="controls" aria-labelledby="controls-title">
+          <h2 id="controls-title">Explora el experimento</h2>
+        </section>
+      </div>
+    </main>
+    <script src="sketch.js"></script>
+  </body>
+</html>

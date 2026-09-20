@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { links, projects } from './content.js';
+import { experiments, links, projects } from './content.js';
 import galeriaLogo from './images/galeria-hrlv-logo.png';
 import ligaMxLogo from './images/ligamx-hrlv-logo.png';
 
@@ -58,9 +58,11 @@ export class HrloveApp extends LitElement {
     .about-copy { font-family: Georgia, serif; font-size: clamp(1.65rem, 3vw, 2.7rem); letter-spacing: -.055em; line-height: 1.12; margin: 0; max-width: 650px; }
     .stack { align-content: start; display: flex; flex-wrap: wrap; gap: .55rem; }
     .stack span { border: 1px solid var(--line); border-radius: 999px; font-size: .78rem; padding: .55rem .8rem; }
-    .experiment { align-items: end; display: flex; justify-content: space-between; min-height: 180px; }
-    .experiment h2 { font-size: clamp(2rem, 4vw, 3.7rem); letter-spacing: -.06em; margin: 0; }
-    .experiment p { color: var(--muted); font-size: .9rem; line-height: 1.5; margin: 0; max-width: 320px; }
+    .experiment-heading { font-size: clamp(2rem, 4vw, 3.7rem); letter-spacing: -.06em; margin: 0; }
+    .experiment-intro { color: var(--muted); font-size: .9rem; line-height: 1.5; margin: 1rem 0 2.5rem; max-width: 480px; }
+    .experiments { display: grid; gap: 1rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .experiment-card { min-height: 220px; gap: 2rem; justify-content: space-between; }
+    .experiment-card h3 { font-size: 1.3rem; overflow-wrap: anywhere; }
     footer { border-top: 1px solid var(--line); padding: 2.5rem 0 3rem; }
     .footer-inner { align-items: center; display: flex; justify-content: space-between; }
     .contact { display: flex; gap: 1.25rem; }
@@ -82,7 +84,8 @@ export class HrloveApp extends LitElement {
       .projects { grid-template-columns: 1fr; }
       .project { min-height: 260px; }
       .about-grid { grid-template-columns: 1fr; }
-      .experiment { align-items: start; flex-direction: column; gap: 2rem; min-height: 220px; }
+      .experiments { grid-template-columns: 1fr; }
+      .experiment-card { min-height: 180px; }
       .footer-inner { align-items: flex-start; flex-direction: column; gap: 1.5rem; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -126,9 +129,18 @@ export class HrloveApp extends LitElement {
             <div class="stack" aria-label="Technologies"><span>Java</span><span>TypeScript</span><span>Lit</span><span>Firebase</span></div>
           </div>
         </div></section>
-        <section><div class="shell experiment">
-          <div><p class="section-label">03 — Experiments</p><h2>Still exploring.</h2></div>
-          <p>A small space for the ideas that are still taking shape. More soon.</p>
+        <section id="experiments" aria-labelledby="experiments-heading"><div class="shell">
+          <p class="section-label">03 — Experimentos</p>
+          <h2 class="experiment-heading" id="experiments-heading">Ideas en movimiento.</h2>
+          <p class="experiment-intro">Explora matemáticas, patrones y movimiento. Cada experimento se abre en una pestaña nueva.</p>
+          <div class="experiments">
+            ${experiments.map((experiment, index) => html`
+              <a class="project experiment-card" href=${experiment.url} target="_blank" rel="noopener noreferrer" aria-label=${`${experiment.title} — Abrir en una pestaña nueva`}>
+                <div class="project-top" aria-hidden="true"><span>${String(index + 1).padStart(2, '0')}</span><span>↗</span></div>
+                <div><h3>${experiment.title}</h3><p>${experiment.description}</p></div>
+              </a>
+            `)}
+          </div>
         </div></section>
         <footer><div class="shell footer-inner">
           <div class="contact"><a href=${links.github} target="_blank" rel="noreferrer">GitHub</a><a href=${links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a><a href=${links.email}>Email</a></div>
